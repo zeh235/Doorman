@@ -1,6 +1,8 @@
+import inspect
+
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import remote_transmitter, remote_receiver
+from esphome.components import remote_base, remote_transmitter, remote_receiver
 from esphome import automation
 from esphome.const import CONF_ID, CONF_TRIGGER_ID, CONF_TYPE
 
@@ -75,6 +77,14 @@ CONF_ON_TELEGRAM = "on_telegram"
 
 CONF_PROGRAMMING_MODE = "programming_mode"
 
+# ESPHome 2026.10+ wants register_action() to state whether play_next_() runs synchronously.
+# All TC:BUS actions call play_next_() directly, older versions don't know the parameter.
+SYNCHRONOUS_ACTION = (
+    {"synchronous": True}
+    if "synchronous" in inspect.signature(automation.register_action).parameters
+    else {}
+)
+
 def validate_config(config):
     return config
 
@@ -111,6 +121,13 @@ async def to_code(config):
     receiver = await cg.get_variable(config[CONF_RECEIVER_ID])
     cg.add(var.set_rx(receiver))
 
+    # ESPHome 2026.10+ sizes the receiver listener list at code generation,
+    # so the listener has to be registered here instead of in setup()
+    if hasattr(remote_base, "add_listener"):
+        remote_base.add_listener(receiver, var)
+    else:
+        cg.add(receiver.register_listener(var))
+
     for conf in config.get(CONF_ON_TELEGRAM, []):
         trigger = cg.new_Pvariable(conf[CONF_TRIGGER_ID], var)
         await automation.build_automation(trigger, [(TelegramData, "x")], conf)
@@ -141,7 +158,8 @@ TC_BUS_SEND_SCHEMA = cv.All(
 @automation.register_action(
     "tc_bus.send",
     TCBusSendAction,
-    TC_BUS_SEND_SCHEMA
+    TC_BUS_SEND_SCHEMA,
+    **SYNCHRONOUS_ACTION
 )
 async def tc_bus_send_to_code(config, action_id, template_args, args):
     var = cg.new_Pvariable(action_id, template_args)
@@ -184,6 +202,7 @@ async def tc_bus_send_to_code(config, action_id, template_args, args):
             cv.Optional(CONF_PROGRAMMING_MODE, default=False): cv.templatable(cv.boolean)
         }
     ),
+    **SYNCHRONOUS_ACTION
 )
 async def tc_bus_set_programming_mode_to_code(config, action_id, template_args, args):
     var = cg.new_Pvariable(action_id, template_args)

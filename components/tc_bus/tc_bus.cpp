@@ -38,9 +38,6 @@ namespace esphome::tc_bus
                 listener->lock(&listener->timer_);
             }
         #endif
-
-        // Register remote receiver listener
-        this->rx_->register_listener(this);
     }
 
     void TCBusComponent::dump_config()
@@ -118,7 +115,7 @@ namespace esphome::tc_bus
 
                 ESP_LOGI(TAG,
                     "Received Data Telegram:\n"
-                    "  Payload: 0x%08X\n"
+                    "  Payload: 0x%08" PRIX32 "\n"
                     "  Response: %s",
                     telegram_data.payload,
                     YESNO(telegram_data.is_response));
@@ -126,10 +123,10 @@ namespace esphome::tc_bus
             else
             {
                 ESP_LOGI(TAG,
-                    "Received Telegram: %s (%i-bit, 0x%08X, %s)\n"
+                    "Received Telegram: %s (%i-bit, 0x%08" PRIX32 ", %s)\n"
                     "  Address: %i\n"
-                    "  Payload: 0x%X\n"
-                    "  Serial-Number: %i\n"
+                    "  Payload: 0x%" PRIX32 "\n"
+                    "  Serial-Number: %" PRIu32 "\n"
                     "  Response: %s",
                     telegram_type_to_string(telegram_data.type), (telegram_data.is_long ? 32 : 16), telegram_data.raw, telegram_data.hex, 
                     telegram_data.address, 
@@ -192,7 +189,7 @@ namespace esphome::tc_bus
             {
                 ESP_LOGI(TAG,
                     "Sending Data Telegram:\n"
-                    "  Payload: 0x%08X\n"
+                    "  Payload: 0x%08" PRIX32 "\n"
                     "  Response: %s",
                     telegram_data.payload,
                     YESNO(telegram_data.is_response));
@@ -200,10 +197,10 @@ namespace esphome::tc_bus
             else
             {
                 ESP_LOGI(TAG,
-                    "Sending Telegram: %s (%i-bit, 0x%08X, %s)\n"
+                    "Sending Telegram: %s (%i-bit, 0x%08" PRIX32 ", %s)\n"
                     "  Address: %i\n"
-                    "  Payload: 0x%X\n"
-                    "  Serial-Number: %i\n"
+                    "  Payload: 0x%" PRIX32 "\n"
+                    "  Serial-Number: %" PRIu32 "\n"
                     "  Response: %s",
                     telegram_type_to_string(telegram_data.type), 
                     (telegram_data.is_long ? 32 : 16), telegram_data.raw, telegram_data.hex, 
@@ -606,7 +603,7 @@ namespace esphome::tc_bus
 
         if (!this->telegram_queue_.push({telegram_data, wait_duration}))
         {
-            ESP_LOGW(TAG, "Telegram queue full, dropping telegram 0x%08X", telegram_data.raw);
+            ESP_LOGW(TAG, "Telegram queue full, dropping telegram 0x%08" PRIX32, telegram_data.raw);
         }
     }
 

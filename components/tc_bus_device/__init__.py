@@ -2,7 +2,7 @@ import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome import automation
 from esphome.const import CONF_ID, CONF_TRIGGER_ID, CONF_TYPE, CONF_VALUE
-from ..tc_bus import tc_bus_ns, TCBusComponent, CONF_TC_BUS_ID, TELEGRAM_TYPE, TELEGRAM_TYPES
+from ..tc_bus import tc_bus_ns, TCBusComponent, CONF_TC_BUS_ID, TELEGRAM_TYPE, TELEGRAM_TYPES, SYNCHRONOUS_ACTION
 
 AUTO_LOAD = ["tc_bus"]
 
@@ -328,7 +328,8 @@ TC_BUS_DEVICE_SEND_SCHEMA = cv.All(
 @automation.register_action(
     "tc_bus_device.send",
     TCBusDeviceSendAction,
-    TC_BUS_DEVICE_SEND_SCHEMA
+    TC_BUS_DEVICE_SEND_SCHEMA,
+    **SYNCHRONOUS_ACTION
 )
 async def tc_bus_device_send_to_code(config, action_id, template_args, args):
     var = cg.new_Pvariable(action_id, template_args)
@@ -357,7 +358,8 @@ TC_BUS_DEVICE_UPDATE_SETTING_SCHEMA = cv.All(
 @automation.register_action(
     "tc_bus_device.update_setting",
     TCBusDeviceUpdateSettingAction,
-    TC_BUS_DEVICE_UPDATE_SETTING_SCHEMA
+    TC_BUS_DEVICE_UPDATE_SETTING_SCHEMA,
+    **SYNCHRONOUS_ACTION
 )
 async def tc_bus_device_update_setting_to_code(config, action_id, template_args, args):
     var = cg.new_Pvariable(action_id, template_args)
@@ -387,7 +389,8 @@ TC_BUS_DEVICE_UPDATE_DOORBELL_BUTTON_SCHEMA = cv.All(
 @automation.register_action(
     "tc_bus_device.update_doorbell_button",
     TCBusDeviceUpdateDoorbellButtonAction,
-    TC_BUS_DEVICE_UPDATE_DOORBELL_BUTTON_SCHEMA
+    TC_BUS_DEVICE_UPDATE_DOORBELL_BUTTON_SCHEMA,
+    **SYNCHRONOUS_ACTION
 )
 async def tc_bus_device_update_doorbell_button_to_code(config, action_id, template_args, args):
     var = cg.new_Pvariable(action_id, template_args)
@@ -425,6 +428,7 @@ async def tc_bus_device_update_doorbell_button_to_code(config, action_id, templa
             cv.GenerateID(CONF_ID): cv.use_id(TCBusDeviceComponent)
         }
     ),
+    **SYNCHRONOUS_ACTION
 )
 async def tc_bus_device_read_memory_to_code(config, action_id, template_args, args):
     var = cg.new_Pvariable(action_id, template_args)
@@ -440,6 +444,7 @@ async def tc_bus_device_read_memory_to_code(config, action_id, template_args, ar
             cv.GenerateID(CONF_ID): cv.use_id(TCBusDeviceComponent)
         }
     ),
+    **SYNCHRONOUS_ACTION
 )
 async def tc_bus_device_request_version_to_code(config, action_id, template_args, args):
     var = cg.new_Pvariable(action_id, template_args)

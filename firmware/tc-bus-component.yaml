@@ -31,6 +31,7 @@ remote_transmitter:
     number: GPIO13
     mode: OUTPUT
   carrier_duty_percent: 100%
+  non_blocking: true
 
 tc_bus:
   id: my_tc_bus
